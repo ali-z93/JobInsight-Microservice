@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: secret
-      POSTGRES_DB: jobInsight
+      POSTGRES_DB: job
     ports:
       - "5432:5432"
     volumes:
