@@ -1,14 +1,17 @@
 package com.ali.jobms.job.JobServiceImpl;
 
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.ali.jobms.job.Job;
 import com.ali.jobms.job.JobRepository;
 import com.ali.jobms.job.JobService;
+import com.ali.jobms.job.dto.JobWithCompanyDTO;
+import com.ali.jobms.job.external.Company;
 
 @Service
 public class JobServiceImpl implements JobService {
@@ -19,11 +22,23 @@ public class JobServiceImpl implements JobService {
 		this.jobRepository = jobRepository;
 	}
 
-
 	@Override
-	public List<Job> findAll() {
+	public List<JobWithCompanyDTO> findAll() {
 
-		return jobRepository.findAll();
+		List<Job> jobs = jobRepository.findAll();
+		List<JobWithCompanyDTO> jobWithCompanyDTOs = new ArrayList<>();
+		RestTemplate restTemplate = new RestTemplate();
+
+		for (Job job : jobs) {
+			JobWithCompanyDTO jobWithCompanyDTO = new JobWithCompanyDTO();
+			jobWithCompanyDTO.setJob(job);
+			Company company = restTemplate.getForObject("http://localhost:8081/companies/" + job.getCompanyId(),
+					Company.class);
+			jobWithCompanyDTO.setCompany(company);
+			jobWithCompanyDTOs.add(jobWithCompanyDTO);
+		}
+
+		return jobWithCompanyDTOs;
 	}
 
 	@Override
